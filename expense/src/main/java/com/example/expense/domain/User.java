@@ -1,5 +1,8 @@
 package com.example.expense.domain;
 
+
+import java.util.Set;
+
 public class User {
     private Integer userId;
     private String firstName;
@@ -7,12 +10,23 @@ public class User {
     private String email;
     private String password;
 
-    public User(Integer userId, String firstName, String lastName, String email, String password) {
+    private String roles;
+
+    // Getter and setter for roles
+    public String getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String roles) {
+        this.roles = roles;
+    }
+    public User(Integer userId, String firstName, String lastName, String email, String password, String roles) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+        this.roles = roles;
     }
 
     public Integer getUserId() {
