@@ -3,6 +3,7 @@ import com.example.expense.Constants;
 import com.example.expense.domain.Payment;
 import com.example.expense.domain.Transaction;
 import com.example.expense.repositories.PaymentRepository;
+import com.example.expense.responseAPI.CheckStatusResponse;
 import com.example.expense.responseAPI.CheckoutResponse;
 import com.example.expense.responseAPI.PaymentResponse;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,6 +31,7 @@ import java.util.*;
 public class PaymentServiceImpl implements PaymentService{
     private static final String API= "http://sandbox.mynagad.com:10080/remote-payment-gateway-1.0/api/dfs/check-out/initialize/{merchantId}/{orderId}";
     private static final String checkoutAPI="http://sandbox.mynagad.com:10080/remote-payment-gateway-1.0/api/dfs/check-out/complete/{PaymentReferenceId}";
+    private static final String statusAPI= "http://sandbox.mynagad.com:10080/remote-payment-gateway-1.0/api/dfs/verify/payment/{paymentRefId}";
     private final RestTemplate restTemplate;
     private final  ObjectMapper objectMapper;
     private final TransactionService transactionService;
@@ -103,13 +105,13 @@ public class PaymentServiceImpl implements PaymentService{
             requestBody.put("challenge", challenge);
 
             String plainSensitiveData = objectMapper.writeValueAsString(requestBody);
-            String plainStringSensitiveData = plainSensitiveData.toString();
+            //String plainStringSensitiveData = plainSensitiveData.toString();
 
             // Encrypt the JSON payload
             String sensitiveData = encrypt(plainSensitiveData);
 
             // Generate the signature
-            String signature = sign(plainStringSensitiveData);
+            String signature = sign(plainSensitiveData);
 
             // Prepare the final API endpoint
             String finalAPI = API.replace("{merchantId}", merchantId).replace("{orderId}", orderId);
@@ -163,13 +165,13 @@ public class PaymentServiceImpl implements PaymentService{
             body.put("challenge",challenge); //provided from initialize api response
 
             String plainSensitiveData = objectMapper.writeValueAsString(body);
-            String plainStringSensitiveData = plainSensitiveData.toString();
+            //String plainStringSensitiveData = plainSensitiveData.toString();
 
             // Encrypt the JSON payload
             String sensitiveData = encrypt(plainSensitiveData);
 
             // Generate the signature
-            String signature = sign(plainStringSensitiveData);
+            String signature = sign(plainSensitiveData);
 
             // Prepare the final API endpoint
             String finalCheckoutAPI = checkoutAPI.replace("{PaymentReferenceId}", paymentReferenceId);
@@ -187,7 +189,7 @@ public class PaymentServiceImpl implements PaymentService{
             Map<String, String> finalRequestBody = new HashMap<>();
             finalRequestBody.put("sensitiveData", sensitiveData);
             finalRequestBody.put("signature", signature);
-            finalRequestBody.put("merchantCallbackURL","http://sandbox.mynagad.com:10707/merchant-server/web/confirm" );
+            finalRequestBody.put("merchantCallbackURL","http://localhost:8080/api/users/status");//"http://sandbox.mynagad.com:10707/merchant-server/web/confirm" );
 
             // Create the request entity with encrypted data
             HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(finalRequestBody, httpHeaders);
@@ -206,5 +208,22 @@ public class PaymentServiceImpl implements PaymentService{
         }
 
     }
+
+    @Override
+    public CheckStatusResponse checkStatus(String paymentReferenceId) {
+        try{
+            String checkStatusAPI = statusAPI.replace("{paymentRefId}", paymentReferenceId);
+            // Send the request
+            HttpEntity<CheckStatusResponse> response = restTemplate.exchange(checkStatusAPI, HttpMethod.GET, null, CheckStatusResponse.class);
+            CheckStatusResponse responseBody = response.getBody();
+            return responseBody;
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            return null;
+        }
+
+    }
+
 
 }

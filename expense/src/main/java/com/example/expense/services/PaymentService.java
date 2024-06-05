@@ -1,5 +1,6 @@
 package com.example.expense.services;
 
+import com.example.expense.responseAPI.CheckStatusResponse;
 import com.example.expense.responseAPI.CheckoutResponse;
 import com.example.expense.responseAPI.PaymentResponse;
 
@@ -10,6 +11,8 @@ public interface PaymentService {
     public String decrypt(String encryptedData) ;
 
     public boolean verifySignature(String data, String signature);
+
+    public CheckStatusResponse checkStatus(String paymentReferenceId);
 
 
 

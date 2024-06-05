@@ -2,6 +2,8 @@ package com.example.expense.controllers;
 
 import com.example.expense.Constants;
 import com.example.expense.domain.User;
+import com.example.expense.responseAPI.CheckStatusResponse;
+import com.example.expense.services.PaymentService;
 import com.example.expense.services.UserService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -60,6 +62,46 @@ public class UserController {
         Map<String, String> map = new HashMap<>();
         map.put("token", token);
         return map;
+    }
+
+    @Autowired
+    PaymentService paymentService;
+    @GetMapping("/status/")
+    public ResponseEntity<Map<String, String>> status(@RequestParam String merchant ,@RequestParam String order_id,@RequestParam String payment_ref_id,@RequestParam String status,@RequestParam String status_code,@RequestParam String message) {
+
+        CheckStatusResponse checkStatusResponse=paymentService.checkStatus(payment_ref_id);
+        String merchantId= checkStatusResponse.getMerchantId();
+        String orderId= checkStatusResponse.getOrderId();
+        String paymentRefId= checkStatusResponse.getPaymentRefId();
+        String amount = checkStatusResponse.getAmount();
+        String clientMobileNo= checkStatusResponse.getClientMobileNo();
+        String merchantMobileNo= checkStatusResponse.getMerchantMobileNo();
+        String orderDateTime= checkStatusResponse.getOrderDateTime();
+        String issuerPaymentDateTime= checkStatusResponse.getIssuerPaymentDateTime();
+        String issuerPaymentRefNo= checkStatusResponse.getIssuerPaymentRefNo();
+        String additionalMerchantInfo =checkStatusResponse.getAdditionalMerchantInfo();
+        String statusInfo= checkStatusResponse.getStatus();
+        String statusCode= checkStatusResponse.getStatusCode();
+        String cancelIssuerDateTime= checkStatusResponse.getCancelIssuerDateTime();
+        String cancelIssuerRefNo= checkStatusResponse.getCancelIssuerRefNo();
+        String serviceType= checkStatusResponse.getServiceType();
+        Map<String, String> map = new HashMap<>();
+        map.put("merchantId",merchantId);
+        map.put("orderId", orderId);
+        map.put("paymentRefId", payment_ref_id);
+        map.put("amount",amount);
+        map.put("clientMobileNo",clientMobileNo);
+        map.put("merchantMobileNo", merchantMobileNo);
+        map.put("orderDateTime", orderDateTime);
+        map.put("issuerPaymentDateTime", issuerPaymentDateTime);
+        map.put("issuerPaymentRefNo", issuerPaymentRefNo);
+        map.put("additionalMerchantInfo", additionalMerchantInfo);
+        map.put("status",statusInfo);
+        map.put("statusCode", statusCode);
+        map.put("cancelIssuerDateTime", cancelIssuerDateTime);
+        map.put("cancelIssuerRefNo", cancelIssuerRefNo);
+        map.put("serviceType",serviceType);
+        return new ResponseEntity<>(map,HttpStatus.OK);
     }
 
 }
