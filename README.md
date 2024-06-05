@@ -10,3 +10,4 @@ Project Summary:
 9. Update or Delete Transaction.
 10. Pay the amount of a transaction using Nagad payment gateway.
 11. Save the transaction info in DB.
+12. Check status from DFS.
